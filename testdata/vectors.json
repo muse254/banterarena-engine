@@ -1,0 +1,66 @@
+[
+  {
+    "name": "zero engagement",
+    "likes": 0,
+    "reposts": 0,
+    "replies": 0,
+    "landed_ratio": 1,
+    "want": 0
+  },
+  {
+    "name": "modest hit",
+    "likes": 2000,
+    "reposts": 300,
+    "replies": 100,
+    "landed_ratio": 0.94,
+    "want": 21.8
+  },
+  {
+    "name": "big hit",
+    "likes": 40000,
+    "reposts": 9000,
+    "replies": 1200,
+    "landed_ratio": 0.93,
+    "want": 74.8
+  },
+  {
+    "name": "viral flop",
+    "likes": 50000,
+    "reposts": 8000,
+    "replies": 4000,
+    "landed_ratio": 0.12,
+    "want": 10.2
+  },
+  {
+    "name": "bought likes, no replies",
+    "likes": 100000,
+    "reposts": 200,
+    "replies": 5,
+    "landed_ratio": 0.5,
+    "want": 10
+  },
+  {
+    "name": "quiet tweet",
+    "likes": 50,
+    "reposts": 2,
+    "replies": 5,
+    "landed_ratio": 0.86,
+    "want": 4.2
+  },
+  {
+    "name": "reply rate exactly at expected",
+    "likes": 10000,
+    "reposts": 0,
+    "replies": 100,
+    "landed_ratio": 1,
+    "want": 39.8
+  },
+  {
+    "name": "half the expected reply rate",
+    "likes": 10000,
+    "reposts": 0,
+    "replies": 50,
+    "landed_ratio": 1,
+    "want": 19.9
+  }
+]
