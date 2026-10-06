@@ -29,7 +29,7 @@ type fakeModel struct {
 	calls *[]string
 }
 
-func (f fakeModel) Predict(_ context.Context, replies []string) ([]Prediction, error) {
+func (f fakeModel) Predict(_ context.Context, _ string, replies []string) ([]Prediction, error) {
 	*f.calls = append(*f.calls, replies...)
 	return f.preds, nil
 }
@@ -37,7 +37,7 @@ func (f fakeModel) Predict(_ context.Context, replies []string) ([]Prediction, e
 func TestTieredOnlySendsUndecidedToModel(t *testing.T) {
 	var sent []string
 	m := fakeModel{preds: []Prediction{{Landed, 0.9}}, calls: &sent}
-	res, err := Tiered{Model: m}.Assess(context.Background(), []Reply{
+	res, err := Tiered{Model: m}.Assess(context.Background(), "joke", []Reply{
 		{"a", "😂😂"}, {"b", "lol"}, {"c", "disrespectful but I'm crying 😂"},
 	})
 	if err != nil {
@@ -60,7 +60,7 @@ func TestTieredOneVotePerAccount(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		replies = append(replies, Reply{Account: fmt.Sprintf("real%d", i), Text: "🥱"})
 	}
-	res, _ := Tiered{}.Assess(context.Background(), replies)
+	res, _ := Tiered{}.Assess(context.Background(), "joke", replies)
 	if res.Landed != 5 || res.Flopped != 5 || res.DuplicatesDropped != 195 {
 		t.Fatalf("spam must collapse to one vote per account: %+v", res)
 	}
@@ -77,14 +77,14 @@ func TestTieredLowConfidenceIsNeutralAndFlagsReview(t *testing.T) {
 		replies = append(replies, Reply{Account: fmt.Sprintf("u%d", i), Text: "hmm interesting take"})
 		preds = append(preds, Prediction{Landed, 0.3})
 	}
-	res, _ := Tiered{Model: fakeModel{preds: preds, calls: &sent}}.Assess(context.Background(), replies)
+	res, _ := Tiered{Model: fakeModel{preds: preds, calls: &sent}}.Assess(context.Background(), "joke", replies)
 	if res.Landed != 0 || res.Unsure != 12 || !res.NeedsReview {
 		t.Fatalf("unsure replies must not count and should flag review: %+v", res)
 	}
 }
 
 func TestTieredWithoutModelStillWorks(t *testing.T) {
-	res, err := Tiered{}.Assess(context.Background(), []Reply{{"a", "😂"}, {"b", "some words"}})
+	res, err := Tiered{}.Assess(context.Background(), "joke", []Reply{{"a", "😂"}, {"b", "some words"}})
 	if err != nil || res.Landed != 1 || res.Neutral != 1 {
 		t.Fatalf("rules-only run failed: %+v, %v", res, err)
 	}

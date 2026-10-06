@@ -2,7 +2,7 @@
 
 The open scoring engine behind [Banter Arena](https://banterarena.com). It decides how many points a banter tweet earns, so the rules are public, testable, and open to challenge.
 
-No network, no database, no dependencies: just the formula, the sentiment interface, and a simulation harness.
+No database and no third-party dependencies. The scoring rules are pure functions; the only network code is the optional `jev` adapter.
 
 ## The formula (FormulaVersion 1)
 
@@ -52,7 +52,21 @@ v := attribution.Assess(
 if v.Decision == attribution.Accept { /* score it */ }
 ```
 
-`sentiment.Classifier` is the interface for judging replies. `sentiment.Heuristic` is an offline keyword stand-in; the production classifier is an LLM behind the same interface.
+## Did the joke land? (sentiment)
+
+`sentiment.Tiered` judges replies in two tiers:
+
+1. **Free rules** settle laugh-only and mock-only replies (`😂😂`, `lmao 💀`, `🥱`) with no model call.
+2. **Jev** ([TypeSafe](https://typesafe.ai)) judges the rest. Each reply is sent *with the joke it's replying to*, and Jev answers two yes/no questions: *is this person laughing or conceding the burn?* and *is this person calling the joke weak?* A verdict below the confidence threshold counts as neutral, and a tweet with too many unsure replies goes to human review.
+
+Every account gets one vote, so 200 laughs from 5 bot accounts count as 5.
+
+```go
+c, _ := jev.FromEnv() // TYPESAFE_API_KEY
+res, err := sentiment.Tiered{Model: jev.Sentiment{Client: c}}.Assess(ctx, jokeText, replies)
+```
+
+`jev/testdata/labelled_replies.json` is the yardstick: replies in English, Sheng, Swahili, Naija Pidgin and South African slang, each labelled landed / flopped / neutral. CI runs Jev against it on every push to `main` and fails if accuracy drops below the bar or below the keyword heuristic. Run it yourself with `TYPESAFE_API_KEY=… go test ./jev -run Labelled -v`. The starter set is hand-written; real labelled replies make it better, so PRs adding them are very welcome.
 
 ## Contributing
 

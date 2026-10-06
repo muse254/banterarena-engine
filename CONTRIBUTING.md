@@ -12,12 +12,15 @@ Scoring changes are the whole point of this repo, so we're strict about *how* th
 A change that makes an existing expectation fail needs an argument for why the expectation was wrong.
 
 ## Rules
-- No I/O and no third-party dependencies in the engine packages.
+- No I/O in the scoring packages (`engine`, `attribution`, `sentiment`, `sim`), and no third-party dependencies anywhere. Network calls live only in adapters like `jev`.
 - Scores must be deterministic: same inputs, same output.
 - Don't tune for specific countries, accounts or tweets.
 
 ## Sentiment classifiers
-Implement `sentiment.Classifier`. Include a labelled test set so reviewers can compare against `Heuristic`.
+Implement `sentiment.Model`. Measure it against `jev/testdata/labelled_replies.json` and show the numbers next to Jev and `Heuristic` in the PR.
+
+## Labelled replies
+The fastest way to make scoring fairer: add real replies to `jev/testdata/labelled_replies.json` with an honest label. Include the joke they reply to, and mark the language (`en`, `sw`, `sheng`, `pcm`, `en-za`, `en-gh`, ...).
 
 ## Attribution and the gazetteer
 - To add a country or terms, edit `attribution/gazetteer.go`. Keep terms specific: a term used by two countries makes locations ambiguous.

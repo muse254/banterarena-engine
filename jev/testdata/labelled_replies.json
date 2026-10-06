@@ -1,0 +1,50 @@
+{
+  "_note": "Hand-written starter set (not real tweets). Replace and grow with real, human-labelled replies. Labels: landed | flopped | neutral.",
+  "jokes": {
+    "jollof": "Nigerians said jollof is a personality trait. In Nairobi we just call it pilau that gave up.",
+    "loadshedding": "South Africans really invented a schedule for darkness and called it a lifestyle.",
+    "matatu": "Kenyan matatus have better sound systems than your entire national stadium.",
+    "accent": "Ghana: we don't do banter, we do proverbs. Here's one: the goat that brags loudest ends up in the soup."
+  },
+  "replies": [
+    {"joke": "jollof", "reply": "this is so disrespectful 😂 I'm screaming", "label": "landed", "lang": "en"},
+    {"joke": "jollof", "reply": "pilau that gave up 💀💀 Kenyans have no chill", "label": "landed", "lang": "en"},
+    {"joke": "jollof", "reply": "Omo this one pain me but e sweet me 😂", "label": "landed", "lang": "pcm"},
+    {"joke": "jollof", "reply": "na wa, this one no funny at all", "label": "flopped", "lang": "pcm"},
+    {"joke": "jollof", "reply": "Who wrote this for you? Weak.", "label": "flopped", "lang": "en"},
+    {"joke": "jollof", "reply": "mtcheew. try harder next time", "label": "flopped", "lang": "pcm"},
+    {"joke": "jollof", "reply": "😂😂 you tried, but no", "label": "flopped", "lang": "en"},
+    {"joke": "jollof", "reply": "Umeua bana 😂😂", "label": "landed", "lang": "sheng"},
+    {"joke": "jollof", "reply": "What's the recipe for pilau though?", "label": "neutral", "lang": "en"},
+    {"joke": "jollof", "reply": "Is this from the same account as yesterday?", "label": "neutral", "lang": "en"},
+
+    {"joke": "loadshedding", "reply": "Eish this one hurts 😭 because it's true", "label": "landed", "lang": "en-za"},
+    {"joke": "loadshedding", "reply": "Haibo that's lame, at least we have a schedule", "label": "flopped", "lang": "en-za"},
+    {"joke": "loadshedding", "reply": "Yoh you guys came prepared today 💀", "label": "landed", "lang": "en-za"},
+    {"joke": "loadshedding", "reply": "Stage 6 of this joke being dry", "label": "flopped", "lang": "en-za"},
+    {"joke": "loadshedding", "reply": "I can't even be mad, this is funny", "label": "landed", "lang": "en"},
+    {"joke": "loadshedding", "reply": "Boring. Next.", "label": "flopped", "lang": "en"},
+    {"joke": "loadshedding", "reply": "Eskom said we're on stage 2 tonight", "label": "neutral", "lang": "en-za"},
+    {"joke": "loadshedding", "reply": "Sharp sharp, see you guys at the match", "label": "neutral", "lang": "en-za"},
+    {"joke": "loadshedding", "reply": "Not the lifestyle 😭😭 you're wrong for this", "label": "landed", "lang": "en"},
+    {"joke": "loadshedding", "reply": "this joke is older than Eskom's power stations", "label": "flopped", "lang": "en-za"},
+
+    {"joke": "matatu", "reply": "Kwanza hii ni ukweli 😂 matatu ni club on wheels", "label": "landed", "lang": "sw"},
+    {"joke": "matatu", "reply": "Hii ni mbaya sana, sio funny", "label": "flopped", "lang": "sw"},
+    {"joke": "matatu", "reply": "LMAO the stadium slander is crazy", "label": "landed", "lang": "en"},
+    {"joke": "matatu", "reply": "Kenyans and making everything about matatus, yawn", "label": "flopped", "lang": "en"},
+    {"joke": "matatu", "reply": "Which route has the best one?", "label": "neutral", "lang": "en"},
+    {"joke": "matatu", "reply": "Manze uko na stress 😂😂", "label": "landed", "lang": "sheng"},
+    {"joke": "matatu", "reply": "Dry joke, sema kitu ingine", "label": "flopped", "lang": "sheng"},
+    {"joke": "matatu", "reply": "I'm in Mombasa this weekend if anyone wants to meet", "label": "neutral", "lang": "en"},
+    {"joke": "matatu", "reply": "You win this round, I'm crying", "label": "landed", "lang": "en"},
+    {"joke": "matatu", "reply": "Ratio + this is unfunny", "label": "flopped", "lang": "en"},
+
+    {"joke": "accent", "reply": "The goat line got me 😂 Ghanaians are too calm with it", "label": "landed", "lang": "en"},
+    {"joke": "accent", "reply": "Proverbs aren't banter, sit down", "label": "flopped", "lang": "en"},
+    {"joke": "accent", "reply": "Chale this one is hot 🔥😂", "label": "landed", "lang": "en-gh"},
+    {"joke": "accent", "reply": "Mid. Ghana should stay out of this", "label": "flopped", "lang": "en"},
+    {"joke": "accent", "reply": "What does that proverb mean exactly?", "label": "neutral", "lang": "en"},
+    {"joke": "accent", "reply": "Following for the next round", "label": "neutral", "lang": "en"}
+  ]
+}

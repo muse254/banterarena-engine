@@ -21,9 +21,10 @@ type Prediction struct {
 }
 
 // Model is the slow, smarter tier (Jev, an LLM, ...). It only ever sees the
-// replies the free rules couldn't decide.
+// replies the free rules couldn't decide. joke is the tweet being replied to:
+// "😂 you're done" means nothing without knowing who it's laughing at.
 type Model interface {
-	Predict(ctx context.Context, replies []string) ([]Prediction, error)
+	Predict(ctx context.Context, joke string, replies []string) ([]Prediction, error)
 }
 
 // Tiered resolves replies with free rules first, then asks Model about the rest.
@@ -51,7 +52,8 @@ type Result struct {
 	NeedsReview              bool
 }
 
-func (t Tiered) Assess(ctx context.Context, replies []Reply) (Result, error) {
+// Assess classifies the replies to joke and returns the landed ratio.
+func (t Tiered) Assess(ctx context.Context, joke string, replies []Reply) (Result, error) {
 	var res Result
 	min := t.MinConfidence
 	if min == 0 {
@@ -81,7 +83,7 @@ func (t Tiered) Assess(ctx context.Context, replies []Reply) (Result, error) {
 	}
 
 	if t.Model != nil && len(undecidedText) > 0 {
-		preds, err := t.Model.Predict(ctx, undecidedText)
+		preds, err := t.Model.Predict(ctx, joke, undecidedText)
 		if err != nil {
 			return Result{}, err
 		}
@@ -171,7 +173,7 @@ var laughWords = map[string]bool{
 
 // Predict lets Heuristic act as an offline Model: keyword hits are moderately
 // confident, anything else is neutral with no confidence.
-func (h Heuristic) Predict(ctx context.Context, replies []string) ([]Prediction, error) {
+func (h Heuristic) Predict(ctx context.Context, _ string, replies []string) ([]Prediction, error) {
 	labels, err := h.Classify(ctx, replies)
 	if err != nil {
 		return nil, err
