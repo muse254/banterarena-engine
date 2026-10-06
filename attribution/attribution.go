@@ -14,7 +14,7 @@ import (
 )
 
 // RulesVersion identifies the attribution rules, like engine.FormulaVersion.
-const RulesVersion = "4"
+const RulesVersion = "5"
 
 // Version history:
 //   1: initial rules.
@@ -91,6 +91,9 @@ type Evidence struct {
 	ReplyLocations []string
 	// Replies, when given, replaces ReplyLocations and adds each reply's stance.
 	Replies []ReplyDetail
+	// ContextMissing is set when the post replies to or quotes a post that
+	// can't be read. The verdict can then be review or reject, never accept.
+	ContextMissing bool
 }
 
 type Verdict struct {
@@ -234,6 +237,10 @@ func Assess(c Claim, e Evidence) Verdict {
 	default:
 		v.Decision = Review
 		v.Reasons = append(v.Reasons, "evidence is thin or mixed")
+	}
+	if v.Decision == Accept && e.ContextMissing {
+		v.Decision = Review
+		v.Reasons = append(v.Reasons, "it reacts to a post that can't be read (protected or deleted), so who it's aimed at is unclear")
 	}
 	if v.Decision == Accept {
 		v.InferredTarget = ""

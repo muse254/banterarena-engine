@@ -156,6 +156,17 @@ func TestAssess(t *testing.T) {
 			want:  Review,
 		},
 		{
+			name:  "reacting to an unreadable post: strong evidence still only reaches review",
+			claim: Claim{Author: "CD", Target: "UG"},
+			ev: Evidence{
+				Text:           "UGX to USD: sina value babe",
+				AuthorName:     "Elly 🇨🇩",
+				ReplyLocations: append(rep(20, "Kampala"), rep(10, "Goma")...),
+				ContextMissing: true,
+			},
+			want: Review,
+		},
+		{
 			name:  "same country on both sides",
 			claim: Claim{Author: "KE", Target: "KE"},
 			ev:    Evidence{Text: "Kenya"},
