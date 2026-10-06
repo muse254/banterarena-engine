@@ -167,6 +167,26 @@ func TestAssess(t *testing.T) {
 			want: Review,
 		},
 		{
+			name:  "10-reply sample: 6 located (3 Nigerians) is enough to accept",
+			claim: ke,
+			ev: Evidence{
+				Text:           "Nigerians and jollof again 😂",
+				AuthorLocation: "Nairobi",
+				ReplyLocations: cat(rep(3, "Lagos"), rep(3, "Nairobi"), rep(4, "")),
+			},
+			want: Accept,
+		},
+		{
+			name:  "10-reply sample: only 4 located is not enough",
+			claim: ke,
+			ev: Evidence{
+				Text:           "Nigerians and jollof again 😂",
+				AuthorLocation: "Nairobi",
+				ReplyLocations: cat(rep(2, "Lagos"), rep(2, "Nairobi"), rep(6, "")),
+			},
+			want: Review,
+		},
+		{
 			name:  "same country on both sides",
 			claim: Claim{Author: "KE", Target: "KE"},
 			ev:    Evidence{Text: "Kenya"},

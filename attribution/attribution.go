@@ -14,7 +14,7 @@ import (
 )
 
 // RulesVersion identifies the attribution rules, like engine.FormulaVersion.
-const RulesVersion = "5"
+const RulesVersion = "6"
 
 // Version history:
 //   1: initial rules.
@@ -38,8 +38,9 @@ const (
 
 const (
 	// MinLocatedReplies is how many replies with a recognisable location we
-	// need before reply geography counts at all. Fewer is noise.
-	MinLocatedReplies = 10
+	// need before reply geography counts at all. Fewer is noise. Sized for a
+	// 10-reply sample, where many repliers leave their location blank.
+	MinLocatedReplies = 5
 
 	targetReplyStrong = 0.20 // a fifth of located replies from the target: they noticed
 	targetReplyWeak   = 0.08
@@ -51,7 +52,7 @@ const (
 
 	// Alliance check. Only replies the stance judge was sure about count
 	// (see Stance); a few is noise, so it needs MinStanceReplies of them.
-	MinStanceReplies = 5
+	MinStanceReplies = 3
 	alliedShare      = 0.60 // this share of sure target-side replies siding with the author: same side
 	hostileShare     = 0.40 // this share pushing back: the jab really is aimed at them
 
