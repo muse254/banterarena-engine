@@ -39,7 +39,9 @@ func LandedRatio(labels []Label) float64 {
 type Heuristic struct{}
 
 var landedWords = []string{"😂", "🤣", "😭", "💀", "lol", "lmao", "i'm dead", "im dead", "ouch", "savage", "hilarious", "funny", "got em", "got 'em", "roasted", "no way", "ratio'd them"}
-var floppedWords = []string{"not funny", "unfunny", "cringe", "mid", "lame", "flop", "boring", "dry", "try harder", "🥱", "🙄", "weak", "not even close", "stop"}
+// Includes Naija Pidgin negations ("no funny", "e no sweet"): without them
+// "this one no funny at all" matched "funny" and read as a laugh.
+var floppedWords = []string{"not funny", "unfunny", "no funny", "no sweet", "no dey funny", "cringe", "mid", "lame", "flop", "boring", "dry", "try harder", "🥱", "🙄", "weak", "not even close", "stop"}
 
 func (Heuristic) Classify(_ context.Context, replies []string) ([]Label, error) {
 	out := make([]Label, len(replies))

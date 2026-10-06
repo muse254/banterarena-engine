@@ -89,3 +89,10 @@ func TestTieredWithoutModelStillWorks(t *testing.T) {
 		t.Fatalf("rules-only run failed: %+v, %v", res, err)
 	}
 }
+
+func TestHeuristicPidginNegation(t *testing.T) {
+	got, _ := Heuristic{}.Classify(context.Background(), []string{"na wa, this one no funny at all", "e no sweet me", "this one funny die 😂"})
+	if got[0] != Flopped || got[1] != Flopped || got[2] != Landed {
+		t.Fatalf("Pidgin negation misread: %v", got)
+	}
+}
