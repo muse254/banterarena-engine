@@ -24,9 +24,11 @@ Every constant is documented in [score.go](score.go) with the reason it was chos
 
 People can cheat by filing a joke against the wrong country, so before a tweet scores, `attribution.Assess` checks the claim (who scores, who the jab is aimed at) against three kinds of evidence:
 
-- **the tweet's text**: country names, demonyms, cities, slang and flag emoji;
-- **the author's profile location**;
+- **the tweet's text**: country names, demonyms, cities, currency codes (UGX, KES, naira…), slang and flag emoji;
+- **the author's profile location**, or a flag in their display name when the location is empty;
 - **where the repliers say they are**: a jab at Nigeria should get reactions from Nigerians.
+
+It also reads **how** the target's own people react. When replies from the target country clearly side with the author (agreeing, celebrating, joining in), the two sides are in agreement, not at war, and the post is rejected. When they clearly push back, that confirms the jab. Only stances a model is at least 80% sure of count (`jev.Stance`), and a laugh on its own is not taken as agreement: the target laughing at a good burn is what a landed jab looks like.
 
 It returns **accept**, **reject** (with reasons and, when it can tell, the country the jab was really aimed at) or **review** for a human. Every signal is spoofable on its own, so none decides alone: only strong agreement accepts or rejects, a location that contradicts the claim is never auto-accepted, and unclear locations are ignored rather than guessed. The rules and thresholds are in [attribution/attribution.go](attribution/attribution.go); the country terms are an open list in [attribution/gazetteer.go](attribution/gazetteer.go), so add yours by PR.
 
@@ -75,6 +77,6 @@ Disagree with how something scores? Good: open an issue with a scenario, or a PR
 ## Honest limitations
 
 - The simulation scenarios and constants are our best judgement, not ground truth. That's why they're public.
-- `attribution` only knows the countries in its gazetteer (Kenya, South Africa, Nigeria, Ghana, Uganda, Tanzania so far) and English-language terms.
+- `attribution` only knows the countries in its gazetteer (Kenya, South Africa, Nigeria, Ghana, Uganda, Tanzania, Zimbabwe, DR Congo so far) and English-language terms.
 - `sentiment.Heuristic` is crude (keywords and emoji, English-centric). It exists to exercise the pipeline, not to be the final judge.
 - Nothing here stops brigading or fake accounts on its own; that's handled in the Banter Arena app.

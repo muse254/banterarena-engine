@@ -108,6 +108,48 @@ func TestAssess(t *testing.T) {
 			want: Accept,
 		},
 		{
+			name:  "allied: Zimbabweans clearly siding with the Kenyan author means same side, not a war",
+			claim: Claim{Author: "KE", Target: "ZW"},
+			ev: Evidence{
+				Text:           "From Zimbambwe straight to Bondo, hatukai sana 😂",
+				AuthorLocation: "Bondo, Kenya",
+				Replies: append(details(12, "Harare", StanceAllied),
+					append(details(2, "Bulawayo", StanceHostile), details(20, "Nairobi", StanceAllied)...)...),
+			},
+			want: Reject,
+		},
+		{
+			name:  "hostile: Nigerians hitting back confirms the jab is aimed at them",
+			claim: ke,
+			ev: Evidence{
+				Text:           "jollof is pilau that gave up",
+				AuthorLocation: "Nairobi",
+				Replies: append(details(10, "Lagos", StanceHostile),
+					append(details(3, "Abuja", StanceAllied), details(15, "Nairobi", StanceUnknown)...)...),
+			},
+			want: Accept,
+		},
+		{
+			name:  "unsure stances never decide: only located replies count",
+			claim: Claim{Author: "KE", Target: "ZW"},
+			ev: Evidence{
+				Text:           "From Zimbabwe to Bondo 😂",
+				AuthorLocation: "Bondo",
+				Replies:        append(details(12, "Harare", StanceUnknown), details(20, "Nairobi", StanceUnknown)...),
+			},
+			want: Accept,
+		},
+		{
+			name:  "display-name flag stands in for an empty location",
+			claim: Claim{Author: "CD", Target: "UG"},
+			ev: Evidence{
+				Text:           "UGX to USD: sina value babe",
+				AuthorName:     "Elly 🇨🇩",
+				ReplyLocations: append(rep(10, "Kampala"), rep(6, "Goma")...),
+			},
+			want: Accept,
+		},
+		{
 			name:  "same country on both sides",
 			claim: Claim{Author: "KE", Target: "KE"},
 			ev:    Evidence{Text: "Kenya"},
@@ -156,4 +198,12 @@ func TestMentionsWholeWords(t *testing.T) {
 	if len(Mentions("the cot was comfy, skoda kodiak")) != 0 {
 		t.Error("terms must match whole words only")
 	}
+}
+
+func details(n int, loc string, st Stance) []ReplyDetail {
+	out := make([]ReplyDetail, n)
+	for i := range out {
+		out[i] = ReplyDetail{Location: loc, Stance: st}
+	}
+	return out
 }

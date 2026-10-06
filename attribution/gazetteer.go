@@ -18,13 +18,15 @@ type Country struct {
 // another country's vocabulary will make locations ambiguous (and ambiguous
 // locations are ignored, never guessed).
 var Gazetteer = []Country{
-	{"KE", []string{"kenya", "kenyan", "kenyans", "nairobi", "nairobian", "mombasa", "kisumu", "nakuru", "eldoret",
+	// Currency codes count: "UGX to USD" is about Uganda as surely as "Kampala" is.
+	{"KE", []string{"kenya", "kenyan", "kenyans", "ksh", "kes", "nairobi", "nairobian", "mombasa", "kisumu", "nakuru", "eldoret",
 		"bondo", "siaya", "kisii", "kakamega", "machakos", "thika", "nyeri", "malindi", "kitale", "kot"}},
-	{"ZA", []string{"south africa", "south african", "south africans", "mzansi", "johannesburg", "joburg", "jozi", "cape town", "durban", "pretoria", "soweto"}},
-	{"NG", []string{"nigeria", "nigerian", "nigerians", "naija", "lagos", "abuja", "kano", "ibadan", "port harcourt"}},
-	{"GH", []string{"ghana", "ghanaian", "ghanaians", "accra", "kumasi"}},
-	{"UG", []string{"uganda", "ugandan", "ugandans", "kampala", "entebbe"}},
-	{"TZ", []string{"tanzania", "tanzanian", "tanzanians", "dar es salaam", "dodoma", "arusha", "zanzibar"}},
+	{"ZA", []string{"south africa", "south african", "south africans", "mzansi", "zar", "johannesburg", "joburg", "jozi", "cape town", "durban", "pretoria", "soweto"}},
+	{"NG", []string{"nigeria", "nigerian", "nigerians", "naija", "naira", "lagos", "abuja", "kano", "ibadan", "port harcourt"}},
+	{"GH", []string{"ghana", "ghanaian", "ghanaians", "cedi", "cedis", "accra", "kumasi"}},
+	{"UG", []string{"uganda", "ugandan", "ugandans", "ugx", "kampala", "entebbe"}},
+	{"TZ", []string{"tanzania", "tanzanian", "tanzanians", "tzs", "dar es salaam", "dodoma", "arusha", "zanzibar"}},
+	{"CD", []string{"drc", "dr congo", "congo kinshasa", "congolese", "kinshasa", "goma", "lubumbashi"}},
 	// "zimbambwe" is a misspelling common enough in real posts to be worth matching.
 	{"ZW", []string{"zimbabwe", "zimbabwean", "zimbabweans", "zimbambwe", "harare", "bulawayo"}},
 }
@@ -96,6 +98,27 @@ func ResolveLocation(loc string) (code string, ok bool) {
 		return "", false
 	}
 	for c := range m {
+		return c, true
+	}
+	return "", false
+}
+
+// resolveFlags reads flag emoji only, for display names: "Elly 🇨🇩" is from
+// DR Congo, but a name like "Kenya Fan Page" shouldn't be read as a location.
+// Exactly one known flag, or nothing.
+func resolveFlags(name string) (string, bool) {
+	found := map[string]bool{}
+	for _, code := range flagCodes(name) {
+		for _, c := range Gazetteer {
+			if c.Code == code {
+				found[code] = true
+			}
+		}
+	}
+	if len(found) != 1 {
+		return "", false
+	}
+	for c := range found {
 		return c, true
 	}
 	return "", false

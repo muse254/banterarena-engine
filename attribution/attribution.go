@@ -14,12 +14,16 @@ import (
 )
 
 // RulesVersion identifies the attribution rules, like engine.FormulaVersion.
-const RulesVersion = "2"
+const RulesVersion = "3"
 
 // Version history:
 //   1: initial rules.
 //   2: text alone can no longer auto-accept. Naming a country is trivial to
 //      fake, so acceptance also needs reply geography or the author's location.
+//   3: alliance check. When the target country's repliers clearly side with the
+//      author, the two sides are in agreement, not at war: reject. Clear
+//      push-back from the target strengthens the claim. A flag in the author's
+//      display name counts when the location field says nothing.
 
 type Decision string
 
@@ -42,6 +46,12 @@ const (
 	authorReplyLow   = 0.05
 	targetReplyHigh  = 0.40 // used with authorReplyLow to detect swapped sides
 
+	// Alliance check. Only replies the stance judge was sure about count
+	// (see Stance); a few is noise, so it needs MinStanceReplies of them.
+	MinStanceReplies = 5
+	alliedShare      = 0.60 // this share of sure target-side replies siding with the author: same side
+	hostileShare     = 0.40 // this share pushing back: the jab really is aimed at them
+
 	rejectTargetAt = -2 // target evidence at or below: not aimed at the target
 	rejectAuthorAt = -3 // author evidence at or below: author isn't on the claimed side
 	acceptTargetAt = 2  // target evidence needed to accept
@@ -54,11 +64,30 @@ type Claim struct {
 	Target string
 }
 
+// Stance is how a reply relates to the joke's author, as judged by a model.
+// Unknown unless the judge was sure: an unsure verdict must not decide anything.
+type Stance int
+
+const (
+	StanceUnknown Stance = iota
+	StanceHostile        // defending their side or hitting back at the author
+	StanceAllied         // agreeing, supporting, joining in on the author's side
+)
+
+// ReplyDetail is one reply's location and, when judged, its stance.
+type ReplyDetail struct {
+	Location string
+	Stance   Stance
+}
+
 // Evidence is everything we can observe about the tweet.
 type Evidence struct {
 	Text           string
-	AuthorLocation string   // the author's profile location, as typed
-	ReplyLocations []string // profile locations of replying accounts
+	AuthorLocation string // the author's profile location, as typed
+	AuthorName     string // display name; a flag there is used when the location is empty or unclear
+	ReplyLocations []string
+	// Replies, when given, replaces ReplyLocations and adds each reply's stance.
+	Replies []ReplyDetail
 }
 
 type Verdict struct {
@@ -82,13 +111,35 @@ func Assess(c Claim, e Evidence) Verdict {
 
 	text := Mentions(e.Text)
 	authorLoc, authorLocOK := ResolveLocation(e.AuthorLocation)
+	if !authorLocOK {
+		// People often put their flag in their display name instead.
+		authorLoc, authorLocOK = resolveFlags(e.AuthorName)
+	}
 
+	replies := e.Replies
+	if len(replies) == 0 {
+		for _, l := range e.ReplyLocations {
+			replies = append(replies, ReplyDetail{Location: l})
+		}
+	}
 	replyCount := map[string]int{}
 	located := 0
-	for _, l := range e.ReplyLocations {
-		if code, ok := ResolveLocation(l); ok {
-			replyCount[code]++
-			located++
+	var targetSure, targetAllied, targetHostile int
+	for _, r := range replies {
+		code, ok := ResolveLocation(r.Location)
+		if !ok {
+			continue
+		}
+		replyCount[code]++
+		located++
+		if code == c.Target && r.Stance != StanceUnknown {
+			targetSure++
+			switch r.Stance {
+			case StanceAllied:
+				targetAllied++
+			case StanceHostile:
+				targetHostile++
+			}
 		}
 	}
 	share := func(code string) float64 { return float64(replyCount[code]) / float64(located) }
@@ -110,6 +161,19 @@ func Assess(c Claim, e Evidence) Verdict {
 		case ts < targetReplyNone:
 			v.TargetEvidence -= 2
 			v.Reasons = append(v.Reasons, "almost no replies come from the target country")
+		}
+	}
+
+	// How did the target's own people react? Only verdicts the judge was sure of.
+	allied := false
+	if targetSure >= MinStanceReplies {
+		switch {
+		case float64(targetAllied)/float64(targetSure) >= alliedShare:
+			allied = true
+			v.Reasons = append(v.Reasons, "people from the target country are clearly siding with the author")
+		case float64(targetHostile)/float64(targetSure) >= hostileShare:
+			v.TargetEvidence++
+			v.Reasons = append(v.Reasons, "people from the target country are pushing back")
 		}
 	}
 
@@ -148,6 +212,9 @@ func Assess(c Claim, e Evidence) Verdict {
 	corroborated := enoughReplies || authorLocOK
 
 	switch {
+	case allied:
+		v.Decision = Reject
+		v.Reasons = append(v.Reasons, "the two sides are in agreement, not at war")
 	case v.TargetEvidence <= rejectTargetAt:
 		v.Decision = Reject
 		v.Reasons = append(v.Reasons, "not aimed at the claimed target")

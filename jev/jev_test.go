@@ -9,6 +9,7 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"github.com/muse254/banterarena-engine/attribution"
 	"github.com/muse254/banterarena-engine/sentiment"
 )
 
@@ -119,5 +120,35 @@ func TestFromProbabilities(t *testing.T) {
 		if got.Label != c.want || got.Confidence != c.conf {
 			t.Errorf("FromProbabilities(%v,%v) = %+v; want %v @ %v", c.l, c.f, got, c.want, c.conf)
 		}
+	}
+}
+
+func TestStanceOnlyCountsWhenSure(t *testing.T) {
+	cases := []struct {
+		a, h float64
+		want attribution.Stance
+	}{
+		{0.92, 0.10, attribution.StanceAllied},
+		{0.05, 0.85, attribution.StanceHostile},
+		{0.75, 0.10, attribution.StanceUnknown}, // likely allied, but not without doubt
+		{0.85, 0.90, attribution.StanceHostile},
+		{0.40, 0.40, attribution.StanceUnknown},
+	}
+	for _, c := range cases {
+		if got := FromStanceProbabilities(c.a, c.h); got != c.want {
+			t.Errorf("FromStanceProbabilities(%v, %v) = %v, want %v", c.a, c.h, got, c.want)
+		}
+	}
+}
+
+func TestStanceAsksBothQuestionsWithContext(t *testing.T) {
+	c := fakeJev(t, func(w http.ResponseWriter, req request) {
+		if req.State != State("joke", "reply") || req.Questions[qAllied].Type != "noul" || req.Questions[qHostile].Type != "noul" {
+			t.Errorf("bad stance request: %+v", req)
+		}
+		answer(w, map[string]float64{qAllied: 0.95, qHostile: 0.02})
+	})
+	if st, err := c.Stance(context.Background(), "joke", "reply"); err != nil || st != attribution.StanceAllied {
+		t.Fatalf("got %v, %v", st, err)
 	}
 }
