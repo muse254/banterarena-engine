@@ -150,6 +150,12 @@ func TestAssess(t *testing.T) {
 			want: Accept,
 		},
 		{
+			name:  "known location and a named target still need replies to accept",
+			claim: ke,
+			ev:    Evidence{Text: "Nigerians and jollof again", AuthorLocation: "Nairobi, Kenya", AuthorName: "Wanjiku 🇰🇪"},
+			want:  Review,
+		},
+		{
 			name:  "same country on both sides",
 			claim: Claim{Author: "KE", Target: "KE"},
 			ev:    Evidence{Text: "Kenya"},

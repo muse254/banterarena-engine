@@ -14,7 +14,7 @@ import (
 )
 
 // RulesVersion identifies the attribution rules, like engine.FormulaVersion.
-const RulesVersion = "3"
+const RulesVersion = "4"
 
 // Version history:
 //   1: initial rules.
@@ -24,6 +24,9 @@ const RulesVersion = "3"
 //      author, the two sides are in agreement, not at war: reject. Clear
 //      push-back from the target strengthens the claim. A flag in the author's
 //      display name counts when the location field says nothing.
+//   4: replies are required to auto-accept. A location or a flag is
+//      self-reported; only reply evidence (enough located repliers) can
+//      carry an accept. Everything else goes to review.
 
 type Decision string
 
@@ -207,9 +210,9 @@ func Assess(c Claim, e Evidence) Verdict {
 	}
 
 	v.InferredTarget = inferTarget(c, text, replyCount, located)
-	// Corroboration is anything beyond the words: enough located replies, or an
-	// author whose location we could resolve.
-	corroborated := enoughReplies || authorLocOK
+	// Corroboration has to come from the replies: text, location and display
+	// name are all self-reported by the poster.
+	corroborated := enoughReplies
 
 	switch {
 	case allied:
@@ -227,7 +230,7 @@ func Assess(c Claim, e Evidence) Verdict {
 		v.Decision = Accept
 	case !corroborated:
 		v.Decision = Review
-		v.Reasons = append(v.Reasons, "only the text points at the target; needs replies or a known author location")
+		v.Reasons = append(v.Reasons, "not enough located replies yet to confirm who this is aimed at")
 	default:
 		v.Decision = Review
 		v.Reasons = append(v.Reasons, "evidence is thin or mixed")
