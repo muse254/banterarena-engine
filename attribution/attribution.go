@@ -14,7 +14,12 @@ import (
 )
 
 // RulesVersion identifies the attribution rules, like engine.FormulaVersion.
-const RulesVersion = "1"
+const RulesVersion = "2"
+
+// Version history:
+//   1: initial rules.
+//   2: text alone can no longer auto-accept. Naming a country is trivial to
+//      fake, so acceptance also needs reply geography or the author's location.
 
 type Decision string
 
@@ -138,6 +143,9 @@ func Assess(c Claim, e Evidence) Verdict {
 	}
 
 	v.InferredTarget = inferTarget(c, text, replyCount, located)
+	// Corroboration is anything beyond the words: enough located replies, or an
+	// author whose location we could resolve.
+	corroborated := enoughReplies || authorLocOK
 
 	switch {
 	case v.TargetEvidence <= rejectTargetAt:
@@ -146,10 +154,13 @@ func Assess(c Claim, e Evidence) Verdict {
 	case v.AuthorEvidence <= rejectAuthorAt:
 		v.Decision = Reject
 		v.Reasons = append(v.Reasons, "author doesn't appear to be on the claimed side")
-	case v.TargetEvidence >= acceptTargetAt && v.AuthorEvidence >= 0 && !locationContradicts:
+	case v.TargetEvidence >= acceptTargetAt && v.AuthorEvidence >= 0 && !locationContradicts && corroborated:
 		// A location that contradicts the claim is never auto-accepted, however
 		// strong the rest looks: expats are real, but so are cheaters.
 		v.Decision = Accept
+	case !corroborated:
+		v.Decision = Review
+		v.Reasons = append(v.Reasons, "only the text points at the target; needs replies or a known author location")
 	default:
 		v.Decision = Review
 		v.Reasons = append(v.Reasons, "evidence is thin or mixed")

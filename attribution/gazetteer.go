@@ -18,12 +18,15 @@ type Country struct {
 // another country's vocabulary will make locations ambiguous (and ambiguous
 // locations are ignored, never guessed).
 var Gazetteer = []Country{
-	{"KE", []string{"kenya", "kenyan", "kenyans", "nairobi", "mombasa", "kisumu", "nakuru", "eldoret", "kot"}},
+	{"KE", []string{"kenya", "kenyan", "kenyans", "nairobi", "nairobian", "mombasa", "kisumu", "nakuru", "eldoret",
+		"bondo", "siaya", "kisii", "kakamega", "machakos", "thika", "nyeri", "malindi", "kitale", "kot"}},
 	{"ZA", []string{"south africa", "south african", "south africans", "mzansi", "johannesburg", "joburg", "jozi", "cape town", "durban", "pretoria", "soweto"}},
 	{"NG", []string{"nigeria", "nigerian", "nigerians", "naija", "lagos", "abuja", "kano", "ibadan", "port harcourt"}},
 	{"GH", []string{"ghana", "ghanaian", "ghanaians", "accra", "kumasi"}},
 	{"UG", []string{"uganda", "ugandan", "ugandans", "kampala", "entebbe"}},
 	{"TZ", []string{"tanzania", "tanzanian", "tanzanians", "dar es salaam", "dodoma", "arusha", "zanzibar"}},
+	// "zimbambwe" is a misspelling common enough in real posts to be worth matching.
+	{"ZW", []string{"zimbabwe", "zimbabwean", "zimbabweans", "zimbambwe", "harare", "bulawayo"}},
 }
 
 // normalize lowercases and turns everything that isn't a letter or digit into

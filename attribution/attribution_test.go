@@ -92,6 +92,22 @@ func TestAssess(t *testing.T) {
 			want: Review,
 		},
 		{
+			name:  "text alone never auto-accepts: anyone can type a country name",
+			claim: ke,
+			ev:    Evidence{Text: "Kenyan Omo vs Nigerian Omo"},
+			want:  Review,
+		},
+		{
+			name:  "Zimbabwe, misspelled, plus a Kenyan town",
+			claim: Claim{Author: "KE", Target: "ZW"},
+			ev: Evidence{
+				Text:           "From Zimbambwe straight to Bondo, hatukai sana 😂",
+				AuthorLocation: "Bondo, Kenya",
+				ReplyLocations: cat(rep(12, "Harare"), rep(20, "Nairobi")),
+			},
+			want: Accept,
+		},
+		{
 			name:  "same country on both sides",
 			claim: Claim{Author: "KE", Target: "KE"},
 			ev:    Evidence{Text: "Kenya"},
